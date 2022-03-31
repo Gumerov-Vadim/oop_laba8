@@ -200,7 +200,7 @@ namespace laba_8
 
                 int pw = width / 2;
                 int ph = height / 2;
-                if (x > pw && x <= 1080 - pw - 22 && y > ph + 22 && y <= 720 - 40 - ph)
+                if (x > pw && x <= 1080 - pw -14 && y > ph + 22 && y <= 720 - 40 - ph)
                 {
                     for (int i = 0; i < size; i++)
                     {
@@ -549,7 +549,7 @@ namespace laba_8
             public override bool set(int x, int y)
             {
                 int p = _size / 2;
-                if (x > p && x <= 1080 - p - 22 && y > p + 22 && y <= 720 - 40 - p)
+                if (x > p && x <= 1080 - p -14&& y > p + 22 && y <= 720 - 40 - p)
                 {
                     _x = x; _y = y;
                     obj.Location = new System.Drawing.Point(x - p, y - p);
