@@ -75,7 +75,6 @@ namespace laba_8
         //классы для группировки
         public abstract class GroupBase : IObject
         {
-            public bool in_group;
             public virtual bool obj_in_group(System.Windows.Forms.Button btn) { return false; }
             public virtual int get_count() { return 1; }
             public abstract List<Control> get_controls();
@@ -90,13 +89,11 @@ namespace laba_8
             public virtual System.Windows.Forms.Button inside() { return null; }
             public virtual System.Windows.Forms.Button inside(object obj) { return null; }
             public abstract List<GroupBase> ungroup();
-            public GroupBase() { in_group = false; }
-            public GroupBase(bool eq) { in_group = eq; }
-
             public abstract int get_x();
             public abstract int get_y();
             public abstract int get_width();
             public abstract int get_height();
+            public abstract string get_name();
             public virtual void save(StreamWriter zn) { }
             public virtual GroupBase load(StreamReader stream) { return null; }
         }
@@ -107,32 +104,23 @@ namespace laba_8
             private int width, height;
             private int x, y;
             private bool _select;
-            //private int count;
+            private string name;
             public int get_size() { return size; }
-            //public override int get_count() { return count; }
-            //public override void set_count(int c) { count = c; }
-            //public void add(GroupBase el)
-            //{
-            //  for (int i = 0; i < size; i++)
-            //    {
-            //        if (elements[i] == null) { elements[i] = el; elements[i].set_count(elements[i].get_count() + 1); }
-            //        this.count++;
-            //    }
-            //}
             public Group()
             {
+                name = "Группа";
                 size = 100;
-                //count = 0;
                 elements = new GroupBase[100];
             }
             public Group(int n)
             {
                 size = n;
-                //count = 0;
+                name = "Группа";
                 elements = new GroupBase[n];
             }
             public Group(List<GroupBase> objects)
             {
+                name = "Группа";
                 int objects_count = objects.Count();
                 elements = new GroupBase[objects_count];
                 if (objects_count > 0)
@@ -191,9 +179,10 @@ namespace laba_8
             public override int get_count()
             {
                 int c = 0;
-                foreach (Group el in elements) { c = c + el.get_count(); }
-                return c;
+                foreach (GroupBase el in elements) { c++; }
+                return c; 
             }
+            public GroupBase get(int i) { return elements[i]; }
             override public bool set(int x, int y)
             {
 
@@ -289,7 +278,7 @@ namespace laba_8
             public override int get_y() { return y; }
             public override int get_width() { return width; }
             public override int get_height() { return height; }
-
+            public override string get_name() { return this.name; }
             public override void save(StreamWriter stream)
             {
                 stream.WriteLine("G");
@@ -541,11 +530,13 @@ namespace laba_8
                 obj.Height = size;
                 obj.Location = new System.Drawing.Point(_x - obj.Width / 2, _y - obj.Height / 2);
                 obj.BackColor = color;
+                name = "Объект";
             }
             protected int _x, _y, _size;
             protected Color _color;
             public bool _selected;
             public System.Windows.Forms.Button obj;
+            protected string name;
             public override bool set(int x, int y)
             {
                 int p = _size / 2;
@@ -618,6 +609,7 @@ namespace laba_8
                 elem.Add(this);
                 return elem;
             }
+            public override string get_name() { return name; }
             public override int get_x() { return _x; }
             public override int get_y() { return _y; }
             public override int get_width() { return _size; }
@@ -633,6 +625,7 @@ namespace laba_8
                 gPath.AddEllipse(0, 0, _size, _size);
                 Region rg = new Region(gPath);
                 obj.Region = rg;
+                name = "Круг";
             }
             public Circle() { set_p(); }
             public Circle(int x, int y) : base(x, y) { set_p(); }
@@ -657,11 +650,12 @@ namespace laba_8
         }
         public class Square : Object
         {
-            public Square() { }
-            public Square(int x, int y) : base(x, y) { }
-            public Square(int x, int y, int size) : base(x, y, size) { }
-            public Square(int x, int y, int size, Color color) : base(x, y, size, color) { }
-            public Square(int[] p, Color color) : base(p[0], p[1], p[2], color) { }
+            private void set_p(){name = "Квадрат";}
+            public Square() { set_p(); }
+            public Square(int x, int y) : base(x, y) { set_p(); }
+            public Square(int x, int y, int size) : base(x, y, size) { set_p(); }
+            public Square(int x, int y, int size, Color color) : base(x, y, size, color) { set_p(); }
+            public Square(int[] p, Color color) : base(p[0], p[1], p[2], color) { set_p(); }
             public override void save(StreamWriter stream)
             {
                 stream.WriteLine("S");
@@ -688,6 +682,7 @@ namespace laba_8
                 });
                 Region rg = new Region(gPath);
                 obj.Region = rg;
+                name = "Треугольник";
             }
             public Triangle() { set_p(); }
             public Triangle(int x, int y) : base(x, y) { set_p(); }
@@ -729,6 +724,7 @@ namespace laba_8
                 gPath.AddPolygon(p);
                 Region rg = new Region(gPath);
                 obj.Region = rg;
+                name = "Звезда";
             }
             public Star() { set_p(); }
             public Star(int x, int y) : base(x, y) { set_p(); }
@@ -751,6 +747,7 @@ namespace laba_8
         }
         public class Storage
         {
+            public System.EventHandler groupschanged;
             //            int count;
             //public int group_count;
             public List<GroupBase> massive;
@@ -849,26 +846,16 @@ namespace laba_8
             public GroupBase group()
             {
                 List<GroupBase> selected = get_selected();
-                foreach (GroupBase obj in selected)
-                {
-                    obj.in_group = true;
-                }
 
                 GroupBase group = new Group(selected);
                 del_selected();
                 massive.Add(group);
+                groupschanged.Invoke(this, null);
                 return group;
-
-                //int selected_count = 0;
-                //for (int i = 0; i < size(); i++)
-                //{
-                //    if (massive[i].select()) { selected_count++; }
-                //}
-                //GroupBase group = new Group(selected_count);
-                //return group;
             }
             public List<GroupBase> ungroup()
             {
+                groupschanged.Invoke(this, null);
                 List<GroupBase> selected = get_selected();
                 List<GroupBase> ungrouped = new List<GroupBase>();
                 while (selected.Count != 0)
@@ -880,15 +867,6 @@ namespace laba_8
                 massive = massive.Concat(ungrouped).ToList();
 
                 return ungrouped;
-                //foreach (GroupBase obj in selected)
-                //{
-                //    obj.in_group = true;
-                //}
-
-                //GroupBase group = new Group(selected);
-                //del_selected();
-                //massive.Add(group);
-                //return group;
             }
             public void save_all(string path)
             {
@@ -903,7 +881,7 @@ namespace laba_8
             }
             public Storage()
             {
-                massive = new List<GroupBase>();
+                massive = new List<GroupBase>(); 
             }
             public Storage(string path)
             {
@@ -918,6 +896,7 @@ namespace laba_8
         {
             InitializeComponent();
             obj_settings.observers += new EventHandler(this.updatefromsettings);
+            storage.groupschanged += new System.EventHandler(update_treeview);
         }
         private void Form1_MouseDown(object sender, MouseEventArgs e)
         {
@@ -1067,6 +1046,38 @@ namespace laba_8
         }
         private void Form1_Load_1(object sender, EventArgs e)
         {
+
+        }
+        private void process_node(TreeNode tn,GroupBase obj)
+        {
+            tn.Nodes.Add(obj.get_name());
+            Group g = obj as Group;
+            if (g != null)
+            {
+                int count = g.get_count();
+                for (int i = 0; i < count; i++)
+                {
+                    GroupBase oo = g.get(i);
+                    process_node(tn.Nodes[0], oo);
+                }
+            }
+            Object o = obj as Object;
+            if(o != null)
+            {
+                tn.Nodes[0].Nodes.Add(o.get_name());
+            }
+        }
+        private void update_treeview(object sender,EventArgs e)
+        {
+            treeView.Nodes.Clear();
+            TreeNode tn = new TreeNode();
+            for(int i = 0; i < storage.size(); i++)
+            {
+                TreeNode o = new TreeNode();
+                process_node(o, storage.get(i));
+                tn.Nodes.Add(o);
+            }
+            treeView.Nodes.AddRange(new System.Windows.Forms.TreeNode[] { tn});
 
         }
         private void сгруппироватьToolStripMenuItem_Click(object sender, EventArgs e)

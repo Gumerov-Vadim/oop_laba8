@@ -41,7 +41,7 @@
             this.size_changer = new System.Windows.Forms.NumericUpDown();
             this.colorDialog = new System.Windows.Forms.ColorDialog();
             this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
-            this.treeView1 = new System.Windows.Forms.TreeView();
+            this.treeView = new System.Windows.Forms.TreeView();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.size_changer)).BeginInit();
             this.SuspendLayout();
@@ -148,24 +148,25 @@
             this.contextMenuStrip1.Name = "contextMenuStrip1";
             this.contextMenuStrip1.Size = new System.Drawing.Size(61, 4);
             // 
-            // treeView1
+            // treeView
             // 
-            this.treeView1.Location = new System.Drawing.Point(1064, 27);
-            this.treeView1.Name = "treeView1";
-            this.treeView1.Size = new System.Drawing.Size(200, 652);
-            this.treeView1.TabIndex = 3;
+            this.treeView.Location = new System.Drawing.Point(1064, 27);
+            this.treeView.Name = "treeView";
+            this.treeView.Size = new System.Drawing.Size(200, 652);
+            this.treeView.TabIndex = 3;
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1264, 681);
-            this.Controls.Add(this.treeView1);
+            this.Controls.Add(this.treeView);
             this.Controls.Add(this.size_changer);
             this.Controls.Add(this.menuStrip1);
             this.Name = "Form1";
             this.Text = "Form1";
             this.Load += new System.EventHandler(this.paint);
+            this.Load += new System.EventHandler(this.update_treeview);
             this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.save_objects);
             this.MouseDown += new System.Windows.Forms.MouseEventHandler(this.Form1_MouseDown);
             this.menuStrip1.ResumeLayout(false);
@@ -190,7 +191,7 @@
         private System.Windows.Forms.ToolStripMenuItem сгруппироватьToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem разгруппироватьToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem звездаToolStripMenuItem;
-        private System.Windows.Forms.TreeView treeView1;
+        private System.Windows.Forms.TreeView treeView;
     }
 }
 
