@@ -751,6 +751,7 @@ namespace laba_8
         public class Storage
         {
             public System.EventHandler groupschanged;
+            public System.EventHandler selectchanged;
             //            int count;
             //public int group_count;
             public List<GroupBase> massive;
@@ -776,9 +777,10 @@ namespace laba_8
             public void add(GroupBase obj)
             {
                 massive.Add(obj);
+                groupschanged.Invoke(this, null);
                 this.select_clear();
                 massive.Last().select(true);
-                groupschanged.Invoke(this, null);
+                selectchanged.Invoke(this, null);
             }
             public void select_clear()
             {
@@ -786,6 +788,7 @@ namespace laba_8
                 {
                     obj.select(false);
                 }
+                selectchanged.Invoke(this, null);
             }
             public void recolor_selected(Color color)
             {
@@ -827,7 +830,12 @@ namespace laba_8
                     }
                 }
                 groupschanged.Invoke(this, null);
+                selectchanged.Invoke(this, null);
                 return deleted;
+            }
+            public void update_selected()
+            {
+                selectchanged.Invoke(this, null);
             }
             public GroupBase get(int i)
             {
@@ -855,9 +863,8 @@ namespace laba_8
                 if(selected.Count == 0) { return null; }
                 GroupBase group = new Group(selected);
                 del_selected();
-                massive.Add(group);
                 group.select();
-                groupschanged.Invoke(this, null);
+                this.add(group);
                 return group;
             }
             public List<GroupBase> ungroup()
@@ -873,6 +880,7 @@ namespace laba_8
                 massive = massive.Concat(ungrouped).ToList();
 
                 groupschanged.Invoke(this, null);
+                selectchanged.Invoke(this, null);
                 return ungrouped;
             }
             public void save_all(string path)
@@ -904,6 +912,7 @@ namespace laba_8
             InitializeComponent();
             obj_settings.observers += new EventHandler(this.updatefromsettings);
             storage.groupschanged += new System.EventHandler(update_treeview);
+            storage.selectchanged += new System.EventHandler(treeview_selected_changed);
         }
         private void Form1_MouseDown(object sender, MouseEventArgs e)
         {
@@ -923,8 +932,6 @@ namespace laba_8
                     obj_control.KeyDown += save_objects;
                     this.Controls.Add(obj_control);
                     //                label1.Text = i.ToString();
-                    storage.select_clear();
-                    obj.select(true);
                 }
                 //List<Control> controls = storage.get_controls();
                 //foreach (Control o in controls)
@@ -952,6 +959,7 @@ namespace laba_8
                 storage.select_clear();
                 obj.select(true);
             }
+            storage.update_selected();
         }
         public void del_selected_obj(object sender, KeyEventArgs e)
         {
@@ -1135,6 +1143,39 @@ namespace laba_8
 
         private void treeView_AfterSelect(object sender, TreeViewEventArgs e)
         {
+            if (e.Node == treeView.Nodes[0])
+            {
+                for (int i = 0; i < storage.size(); i++)
+                {
+                    storage.get(i).select(true);
+                }
+            }
+            else
+            {
+                for (int i = 0; i < treeView.Nodes[0].GetNodeCount(false); i++)
+                {
+
+
+                    if (e.Node == treeView.Nodes[0].Nodes[i])
+                    {
+
+                        storage.select_clear();
+                        storage.get(i).select(true);
+                        return;
+                    }
+                }
+            }
+        }
+        private void treeview_selected_changed(object sender,EventArgs e)
+        {
+            for(int i = 0; i < storage.size(); i++)
+            {
+                treeView.Nodes[0].Nodes[i].BackColor = Color.White;
+                if (storage.get(i).select()) {
+                    treeView.Nodes[0].Nodes[i].Checked=true;
+                    treeView.Nodes[0].Nodes[i].BackColor = Color.Purple;
+                        }
+            }
         }
     }
 }
