@@ -775,6 +775,7 @@ namespace laba_8
                 massive.Add(obj);
                 this.select_clear();
                 massive.Last().select(true);
+                groupschanged.Invoke(this, null);
             }
             public void select_clear()
             {
@@ -822,6 +823,7 @@ namespace laba_8
                         i++;
                     }
                 }
+                groupschanged.Invoke(this, null);
                 return deleted;
             }
             public GroupBase get(int i)
@@ -855,7 +857,6 @@ namespace laba_8
             }
             public List<GroupBase> ungroup()
             {
-                groupschanged.Invoke(this, null);
                 List<GroupBase> selected = get_selected();
                 List<GroupBase> ungrouped = new List<GroupBase>();
                 while (selected.Count != 0)
@@ -866,6 +867,7 @@ namespace laba_8
                 }
                 massive = massive.Concat(ungrouped).ToList();
 
+                groupschanged.Invoke(this, null);
                 return ungrouped;
             }
             public void save_all(string path)
@@ -1050,21 +1052,52 @@ namespace laba_8
         }
         private void process_node(TreeNode tn,GroupBase obj)
         {
-            tn.Nodes.Add(obj.get_name());
+            string name = obj.get_name();
+            Object o = obj as Object;
+            if(o != null)
+            {
+                tn.Nodes.Add(name);
+                //tn.Nodes[0].Text = name;
+            }
             Group g = obj as Group;
             if (g != null)
             {
                 int count = g.get_count();
+                //TreeNode grnode = new TreeNode();
                 for (int i = 0; i < count; i++)
                 {
+                    TreeNode grnode = new TreeNode();
+
                     GroupBase oo = g.get(i);
-                    process_node(tn.Nodes[0], oo);
+                    string oo_name = oo.get_name();
+
+                    Object o_oo = oo as Object;
+                    if (o_oo != null)
+                    {
+                        tn.Nodes.Add(oo_name);
+                    }
+                    //если объект в группе - группа
+                    Group g_oo = oo as Group;
+                    if (g_oo != null)
+                    {
+                        process_node(grnode, oo);
+                        tn.Nodes.Add(grnode);
+                        tn.Nodes[i].Text = oo_name;
+                    }
+                    //TreeNode obj_ingr = new TreeNode();
+                    //GroupBase oo = g.get(i);
+                    //string oo_name = oo.get_name();
+
+                    ////tn.Nodes.Add(oo_name);
+                    //Group g_oo = oo as Group;
+                    //if (g_oo != null) {
+                    //    process_node(obj_ingr, oo);
+                    //    tn.Nodes.Add(obj_ingr);
+                    //    tn.Nodes[i].Text = oo_name;
+                    //}
+
                 }
-            }
-            Object o = obj as Object;
-            if(o != null)
-            {
-                tn.Nodes[0].Nodes.Add(o.get_name());
+                //tn.Nodes.Add(grnode);
             }
         }
         private void update_treeview(object sender,EventArgs e)
@@ -1073,10 +1106,22 @@ namespace laba_8
             TreeNode tn = new TreeNode();
             for(int i = 0; i < storage.size(); i++)
             {
+                GroupBase el = storage.get(i);
                 TreeNode o = new TreeNode();
-                process_node(o, storage.get(i));
-                tn.Nodes.Add(o);
+                Group gr = el as Group;
+                string name = el.get_name();
+                tn.Nodes.Add(name);
+                tn.Nodes[i].Name = name;
+                if(gr != null)
+                {
+                    process_node(o, el);
+                    tn.Nodes.Add(o);
+                   // tn.Nodes[0].Name = gr.get_name();
+                }
+                //tn.Nodes.Add(el.get_name());
             }
+            treeView.Nodes.Add("Все объекты");
+            treeView.Nodes[0].Name = "Все объекты";
             treeView.Nodes.AddRange(new System.Windows.Forms.TreeNode[] { tn});
 
         }
@@ -1089,5 +1134,9 @@ namespace laba_8
             storage.ungroup();
         }
 
+        private void treeView_AfterSelect(object sender, TreeViewEventArgs e)
+        {
+                label1.Text = e.Node.Name.ToString();
+        }
     }
 }
