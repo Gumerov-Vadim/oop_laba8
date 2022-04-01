@@ -111,12 +111,14 @@ namespace laba_8
                 name = "Группа";
                 size = 100;
                 elements = new GroupBase[100];
+                _select = false;
             }
             public Group(int n)
             {
                 size = n;
                 name = "Группа";
                 elements = new GroupBase[n];
+                _select = false;
             }
             public Group(List<GroupBase> objects)
             {
@@ -156,7 +158,7 @@ namespace laba_8
                     height = (tb - bb);
                 }
                 size = objects_count;
-                _select = true;
+                _select = false;
 
             }
             override public bool obj_in_group(System.Windows.Forms.Button btn)
@@ -531,6 +533,7 @@ namespace laba_8
                 obj.Location = new System.Drawing.Point(_x - obj.Width / 2, _y - obj.Height / 2);
                 obj.BackColor = color;
                 name = "Объект";
+                _selected = false;
             }
             protected int _x, _y, _size;
             protected Color _color;
@@ -849,9 +852,11 @@ namespace laba_8
             {
                 List<GroupBase> selected = get_selected();
 
+                if(selected.Count == 0) { return null; }
                 GroupBase group = new Group(selected);
                 del_selected();
                 massive.Add(group);
+                group.select();
                 groupschanged.Invoke(this, null);
                 return group;
             }
@@ -1084,21 +1089,9 @@ namespace laba_8
                         tn.Nodes.Add(grnode);
                         tn.Nodes[i].Text = oo_name;
                     }
+                    //tn.Nodes[i].Checked = false;
                     tn.Nodes[i].Toggle();
-                    //TreeNode obj_ingr = new TreeNode();
-                    //GroupBase oo = g.get(i);
-                    //string oo_name = oo.get_name();
-
-                    ////tn.Nodes.Add(oo_name);
-                    //Group g_oo = oo as Group;
-                    //if (g_oo != null) {
-                    //    process_node(obj_ingr, oo);
-                    //    tn.Nodes.Add(obj_ingr);
-                    //    tn.Nodes[i].Text = oo_name;
-                    //}
-
                 }
-                //tn.Nodes.Add(grnode);
             }
         }
         private void update_treeview(object sender,EventArgs e)
@@ -1142,7 +1135,6 @@ namespace laba_8
 
         private void treeView_AfterSelect(object sender, TreeViewEventArgs e)
         {
-                label1.Text = e.Node.Text;
         }
     }
 }

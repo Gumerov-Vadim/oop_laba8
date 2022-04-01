@@ -42,7 +42,6 @@
             this.colorDialog = new System.Windows.Forms.ColorDialog();
             this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.treeView = new System.Windows.Forms.TreeView();
-            this.label1 = new System.Windows.Forms.Label();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.size_changer)).BeginInit();
             this.SuspendLayout();
@@ -157,28 +156,18 @@
             this.treeView.TabIndex = 3;
             this.treeView.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.treeView_AfterSelect);
             // 
-            // label1
-            // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(82, 184);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(35, 13);
-            this.label1.TabIndex = 4;
-            this.label1.Text = "label1";
-            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1264, 681);
-            this.Controls.Add(this.label1);
             this.Controls.Add(this.treeView);
             this.Controls.Add(this.size_changer);
             this.Controls.Add(this.menuStrip1);
             this.Name = "Form1";
             this.Text = "Form1";
-            this.Load += new System.EventHandler(this.paint);
             this.Load += new System.EventHandler(this.update_treeview);
+            this.Load += new System.EventHandler(this.paint);
             this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.save_objects);
             this.MouseDown += new System.Windows.Forms.MouseEventHandler(this.Form1_MouseDown);
             this.menuStrip1.ResumeLayout(false);
@@ -204,7 +193,6 @@
         private System.Windows.Forms.ToolStripMenuItem разгруппироватьToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem звездаToolStripMenuItem;
         private System.Windows.Forms.TreeView treeView;
-        private System.Windows.Forms.Label label1;
     }
 }
 
