@@ -1084,6 +1084,7 @@ namespace laba_8
                         tn.Nodes.Add(grnode);
                         tn.Nodes[i].Text = oo_name;
                     }
+                    tn.Nodes[i].Toggle();
                     //TreeNode obj_ingr = new TreeNode();
                     //GroupBase oo = g.get(i);
                     //string oo_name = oo.get_name();
@@ -1109,21 +1110,26 @@ namespace laba_8
                 GroupBase el = storage.get(i);
                 TreeNode o = new TreeNode();
                 Group gr = el as Group;
+                Object oo = el as Object;
                 string name = el.get_name();
-                tn.Nodes.Add(name);
-                tn.Nodes[i].Name = name;
+
+                if (oo != null)
+                {
+                    tn.Nodes.Add(name);
+                }
                 if(gr != null)
                 {
                     process_node(o, el);
                     tn.Nodes.Add(o);
-                   // tn.Nodes[0].Name = gr.get_name();
+                    tn.Nodes[i].Text = name;
+                    // tn.Nodes[0].Name = gr.get_name();
                 }
+                tn.Nodes[i].Toggle();
                 //tn.Nodes.Add(el.get_name());
             }
-            treeView.Nodes.Add("Все объекты");
-            treeView.Nodes[0].Name = "Все объекты";
             treeView.Nodes.AddRange(new System.Windows.Forms.TreeNode[] { tn});
-
+            treeView.Nodes[0].Text = "Все объекты";
+            treeView.Nodes[0].Toggle();
         }
         private void сгруппироватьToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -1136,7 +1142,7 @@ namespace laba_8
 
         private void treeView_AfterSelect(object sender, TreeViewEventArgs e)
         {
-                label1.Text = e.Node.Name.ToString();
+                label1.Text = e.Node.Text;
         }
     }
 }
