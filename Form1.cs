@@ -33,15 +33,16 @@ namespace laba_8
                 color = Color.Green;
             }
 
-            public Object create_obj (int x,int y){
+            public Object create_obj(int x, int y)
+            {
                 Object obj;
                 switch (pick_obj())
                 {
                     case 0:
-                        obj = new Circle(x,y,size / 2,color);
+                        obj = new Circle(x, y, size / 2, color);
                         break;
                     case 1:
-                        obj = new Triangle(x,y,size, color);
+                        obj = new Triangle(x, y, size, color);
                         break;
                     case 2:
                         obj = new Square(x, y, size, color);
@@ -56,7 +57,7 @@ namespace laba_8
                 }
                 return obj;
             }
-    }
+        }
         interface IObject
         {
             //  void set_p(int x, int y, int size, Color color);
@@ -72,9 +73,17 @@ namespace laba_8
             //System.Windows.Forms.Button inside();
         }
 
+        public class lm_arg : EventArgs
+        {
+            public int x, y;
+
+            public lm_arg(int x, int y) { this.x = x; this.y = y; }
+        }
         //классы для группировки
         public abstract class GroupBase : IObject
         {
+            public bool lipkiy;
+            public System.EventHandler lipkiy_move;
             public virtual bool obj_in_group(System.Windows.Forms.Button btn) { return false; }
             public virtual int get_count() { return 1; }
             public abstract List<Control> get_controls();
@@ -182,7 +191,7 @@ namespace laba_8
             {
                 int c = 0;
                 foreach (GroupBase el in elements) { c++; }
-                return c; 
+                return c;
             }
             public GroupBase get(int i) { return elements[i]; }
             override public bool set(int x, int y)
@@ -191,7 +200,7 @@ namespace laba_8
 
                 int pw = width / 2;
                 int ph = height / 2;
-                if (x > pw && x <= 1080 - pw -14 && y > ph + 22 && y <= 720 - 40 - ph)
+                if (x > pw && x <= 1080 - pw - 14 && y > ph + 22 && y <= 720 - 40 - ph)
                 {
                     for (int i = 0; i < size; i++)
                     {
@@ -204,6 +213,11 @@ namespace laba_8
             }
             override public bool add(int x, int y)
             {
+                EventArgs e = new lm_arg(x, y);
+                if (this.lipkiy)
+                {
+                    lipkiy_move.Invoke(this, e);
+                }
                 return this.set(this.x + x, this.y + y);
 
             }
@@ -534,6 +548,7 @@ namespace laba_8
                 obj.BackColor = color;
                 name = "Объект";
                 _selected = false;
+                lipkiy = false;
             }
             protected int _x, _y, _size;
             protected Color _color;
@@ -543,7 +558,7 @@ namespace laba_8
             public override bool set(int x, int y)
             {
                 int p = _size / 2;
-                if (x > p && x <= 1080 - p -14&& y > p + 22 && y <= 720 - 40 - p)
+                if (x > p && x <= 1080 - p - 14 && y > p + 22 && y <= 720 - 40 - p)
                 {
                     _x = x; _y = y;
                     obj.Location = new System.Drawing.Point(x - p, y - p);
@@ -551,7 +566,15 @@ namespace laba_8
                 }
                 return false;
             }
-            public override bool add(int x, int y) { return this.set(_x + x, _y + y); }
+            public override bool add(int x, int y)
+            {
+                if (lipkiy)
+                {
+                    EventArgs e = new lm_arg(x, y);
+                    lipkiy_move.Invoke(this, e);
+                }
+                return this.set(_x + x, _y + y);
+            }
             public override void set_color(Color color)
             {
                 _color = color;
@@ -653,7 +676,7 @@ namespace laba_8
         }
         public class Square : Object
         {
-            private void set_p(){name = "Квадрат";}
+            private void set_p() { name = "Квадрат"; }
             public Square() { set_p(); }
             public Square(int x, int y) : base(x, y) { set_p(); }
             public Square(int x, int y, int size) : base(x, y, size) { set_p(); }
@@ -716,7 +739,7 @@ namespace laba_8
                 //gPath.AddEllipse(0, 0, _size, _size);
 
                 System.Drawing.Point[] p = new System.Drawing.Point[8];
-                p[0] = new Point(_size * 0 * 2 / 100, _size*25*2/100);
+                p[0] = new Point(_size * 0 * 2 / 100, _size * 25 * 2 / 100);
                 p[1] = new Point(_size * 20 * 2 / 100, _size * 20 * 2 / 100);
                 p[2] = new Point(_size * 25 * 2 / 100, _size * 0 * 2 / 100);
                 p[3] = new Point(_size * 30 * 2 / 100, _size * 20 * 2 / 100);
@@ -860,7 +883,7 @@ namespace laba_8
             {
                 List<GroupBase> selected = get_selected();
 
-                if(selected.Count == 0) { return null; }
+                if (selected.Count == 0) { return null; }
                 GroupBase group = new Group(selected);
                 del_selected();
                 group.select();
@@ -883,6 +906,44 @@ namespace laba_8
                 selectchanged.Invoke(this, null);
                 return ungrouped;
             }
+            public void move_near(GroupBase obj, int x, int y)
+            {
+                int ol, or, ot, ob, objl, objr, objt, objb;
+                foreach (GroupBase o in massive)
+                {
+                    if (o != obj)
+                    {
+                        ol = o.get_x() - o.get_width() / 2;
+                        or = o.get_x() + o.get_width() / 2;
+                        ob = o.get_y() - o.get_height() / 2;
+                        ot = o.get_y() + o.get_height() / 2;
+                        objl = o.get_x() - o.get_width() / 2;
+                        objr = o.get_x() + o.get_width() / 2;
+                        objb = o.get_y() - o.get_height() / 2;
+                        objt = o.get_y() + o.get_height() / 2;
+                        if ((or >= objl || ol <= objr) && (ot >= objb || ob <= objt) && ((Math.Abs(o.get_x() - obj.get_x()) < o.get_width() / 2 + obj.get_width() / 2) && (Math.Abs(o.get_y() - obj.get_y()) < o.get_height() / 2 + obj.get_height() / 2)))
+                            o.set(o.get_x() + x, o.get_y() + y);
+                    }
+                }
+            }
+            public void lipkiy_clear()
+            {
+                foreach (GroupBase o in massive)
+                {
+                    o.lipkiy = false;
+                }
+            }
+            public void selected_lipkiy()
+            {
+                this.lipkiy_clear();
+                int i = 0;
+                while (i < size())
+                {
+                    GroupBase el = this.get(i);
+                    if (el.select()) { el.lipkiy = true; return; }
+                    i++;
+                }
+            }
             public void save_all(string path)
             {
                 StreamWriter zn = new StreamWriter(path, false);  //Класс для записи в файл
@@ -896,7 +957,7 @@ namespace laba_8
             }
             public Storage()
             {
-                massive = new List<GroupBase>(); 
+                massive = new List<GroupBase>();
             }
             public Storage(string path)
             {
@@ -919,7 +980,7 @@ namespace laba_8
             int p = obj_settings.resize();
             if (e.X > p && e.X <= 1080 - p - 22 && e.Y > p + 22 && e.Y <= 720 - p - 40)
             {
-                Object obj = obj_settings.create_obj(e.X,e.Y);
+                Object obj = obj_settings.create_obj(e.X, e.Y);
                 storage.add(obj);
 
                 if (obj != null)
@@ -930,6 +991,7 @@ namespace laba_8
                     obj_control.KeyDown += move_obj;
                     obj_control.KeyDown += create_group;
                     obj_control.KeyDown += save_objects;
+                    obj.lipkiy_move += move_near_objects;
                     this.Controls.Add(obj_control);
                     //                label1.Text = i.ToString();
                 }
@@ -979,6 +1041,12 @@ namespace laba_8
             movemap.move(o, e);
 
         }
+        public void move_near_objects(object sender, EventArgs e)
+        {
+            lm_arg einf = e as lm_arg;
+            GroupBase obj = sender as GroupBase;
+            storage.move_near(obj, einf.x, einf.y);
+        }
         public void save_objects(object sender, KeyEventArgs e)
         {
             if (Control.ModifierKeys == Keys.Control && e.KeyCode == Keys.S)
@@ -998,6 +1066,13 @@ namespace laba_8
             //Controls.Clear();
             //InitializeComponent();
 
+
+
+
+            for (int i = 0; i < storage.size(); i++)
+            {
+                storage.get(i).lipkiy_move += move_near_objects;
+            }
             List<Control> controls = storage.get_controls();
             foreach (Control obj in controls)
             {
@@ -1063,11 +1138,11 @@ namespace laba_8
         {
 
         }
-        private void process_node(TreeNode tn,GroupBase obj)
+        private void process_node(TreeNode tn, GroupBase obj)
         {
             string name = obj.get_name();
             Object o = obj as Object;
-            if(o != null)
+            if (o != null)
             {
                 tn.Nodes.Add(name);
                 //tn.Nodes[0].Text = name;
@@ -1102,11 +1177,11 @@ namespace laba_8
                 }
             }
         }
-        private void update_treeview(object sender,EventArgs e)
+        private void update_treeview(object sender, EventArgs e)
         {
             treeView.Nodes.Clear();
             TreeNode tn = new TreeNode();
-            for(int i = 0; i < storage.size(); i++)
+            for (int i = 0; i < storage.size(); i++)
             {
                 GroupBase el = storage.get(i);
                 TreeNode o = new TreeNode();
@@ -1118,7 +1193,7 @@ namespace laba_8
                 {
                     tn.Nodes.Add(name);
                 }
-                if(gr != null)
+                if (gr != null)
                 {
                     process_node(o, el);
                     tn.Nodes.Add(o);
@@ -1128,13 +1203,14 @@ namespace laba_8
                 tn.Nodes[i].Toggle();
                 //tn.Nodes.Add(el.get_name());
             }
-            treeView.Nodes.AddRange(new System.Windows.Forms.TreeNode[] { tn});
+            treeView.Nodes.AddRange(new System.Windows.Forms.TreeNode[] { tn });
             treeView.Nodes[0].Text = "Все объекты";
             treeView.Nodes[0].Toggle();
         }
         private void сгруппироватьToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            storage.group();
+            GroupBase gr = storage.group();
+            gr.lipkiy_move += move_near_objects;
         }
         private void разгруппироватьToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -1166,16 +1242,28 @@ namespace laba_8
                 }
             }
         }
-        private void treeview_selected_changed(object sender,EventArgs e)
+        private void treeview_selected_changed(object sender, EventArgs e)
         {
-            for(int i = 0; i < storage.size(); i++)
+            for (int i = 0; i < storage.size(); i++)
             {
                 treeView.Nodes[0].Nodes[i].BackColor = Color.White;
-                if (storage.get(i).select()) {
-                    treeView.Nodes[0].Nodes[i].Checked=true;
+                if (storage.get(i).select())
+                {
+                    treeView.Nodes[0].Nodes[i].Checked = true;
                     treeView.Nodes[0].Nodes[i].BackColor = Color.Purple;
-                        }
+                }
             }
         }
+        bool lipkiy_check = true;
+        private void checkBox1_CheckedChanged(object sender, EventArgs e)
+        {
+            if (lipkiy_check)
+            {
+                lipkiy_check = false;
+                storage.selected_lipkiy();
+            }
+            else { storage.lipkiy_clear(); lipkiy_check = true; }
+        }
+
     }
 }

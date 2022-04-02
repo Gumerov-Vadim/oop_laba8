@@ -42,6 +42,7 @@
             this.colorDialog = new System.Windows.Forms.ColorDialog();
             this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.treeView = new System.Windows.Forms.TreeView();
+            this.checkBox1 = new System.Windows.Forms.CheckBox();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.size_changer)).BeginInit();
             this.SuspendLayout();
@@ -156,18 +157,30 @@
             this.treeView.TabIndex = 3;
             this.treeView.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.treeView_AfterSelect);
             // 
+            // checkBox1
+            // 
+            this.checkBox1.AutoSize = true;
+            this.checkBox1.Location = new System.Drawing.Point(592, 6);
+            this.checkBox1.Name = "checkBox1";
+            this.checkBox1.Size = new System.Drawing.Size(147, 17);
+            this.checkBox1.TabIndex = 4;
+            this.checkBox1.Text = "сделать объект липким";
+            this.checkBox1.UseVisualStyleBackColor = true;
+            this.checkBox1.CheckedChanged += new System.EventHandler(this.checkBox1_CheckedChanged);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1264, 681);
+            this.Controls.Add(this.checkBox1);
             this.Controls.Add(this.treeView);
             this.Controls.Add(this.size_changer);
             this.Controls.Add(this.menuStrip1);
             this.Name = "Form1";
             this.Text = "Form1";
-            this.Load += new System.EventHandler(this.update_treeview);
             this.Load += new System.EventHandler(this.paint);
+            this.Load += new System.EventHandler(this.update_treeview);
             this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.save_objects);
             this.MouseDown += new System.Windows.Forms.MouseEventHandler(this.Form1_MouseDown);
             this.menuStrip1.ResumeLayout(false);
@@ -193,6 +206,7 @@
         private System.Windows.Forms.ToolStripMenuItem разгруппироватьToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem звездаToolStripMenuItem;
         private System.Windows.Forms.TreeView treeView;
+        private System.Windows.Forms.CheckBox checkBox1;
     }
 }
 
